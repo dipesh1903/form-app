@@ -1,0 +1,9 @@
+{
+    "loginPage": {
+        "heading": "Now is your chance to work abroad and earn for a better future",
+        "subMessage": "Verify your phone number to Proceed",
+        "btnMessage": "Send Otp",
+        "inputPlaceholder": "Phone number",
+        "errorMessage": "Incorrect Phone number"
+    }
+}

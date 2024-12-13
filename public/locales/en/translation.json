@@ -1,0 +1,38 @@
+{
+    "loginPage": {
+        "heading": "Now is your chance to work abroad and earn for a better future",
+        "subMessage": "Verify your phone number to Proceed",
+        "btnMessage": "Send Otp",
+        "inputPlaceholder": "Phone number",
+        "errorMessage": "Incorrect Phone number"
+    },
+    "otpPage": {
+        "heading": "Verify Otp",
+        "btnMessage": "Verify",
+        "info": "If otp not received ?",
+        "resendBtnMessage": "Resend",
+        "errorMsg": "incorrect otp",
+        "successMsg": "Congratulations"
+    },
+    "userDetails": {
+        "heading": "User details",
+        "passport": "Do you have passport ?",
+        "name": "Name",
+        "IndustryType": "Industry to work for",
+        "address": "address",
+        "state": "state",
+        "pincode": "pincode",
+        "btnMessage": "Save"
+    },
+    "existingUser": {
+        "heading": "Registration Successful",
+        "email": "random@gmail.com",
+        "phoneNumber": "123456789",
+        "mapLocation": "open in google map",
+        "actionRegisterMsg": "Register for a different person",
+        "actionRegisterBtnMsg": "start",
+        "actionEditMsg": "Edit your details",
+        "actionEditBtn": "edit",
+        "companyContactMsg": "Reach out to us"
+    }
+}
