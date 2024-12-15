@@ -7,17 +7,24 @@ import { cn } from "../utils";
 import { ConfirmationResult, getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import Spinner from "../assets/svg/spinner.svg";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../store/auth/context";
 
-type props = {
-    onSuccess: () => void
-}
-
-export default function Login({onSuccess}: props) {
+export default function Login() {
 
     const { t } = useTranslation();
     const [phoneNumber , setPhoneNumber] = useState<string>('');
     const [isLoading, setLoading] = useState<boolean>(false);
     const auth = getAuth();
+    const userAuth = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (userAuth.isFirebaseAuthenticated && userAuth.user && userAuth.user.uid) {
+            navigate('/success');
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useEffect(() => {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'app-sign-in-button', {
@@ -47,7 +54,7 @@ export default function Login({onSuccess}: props) {
         signInWithPhoneNumber(auth, `+91${phoneNumber}`, window.recaptchaVerifier)
             .then((confirmationResult: ConfirmationResult) => {
             window.confirmationResult = confirmationResult;
-            onSuccess();
+            navigate('/otp');
             }).catch((error) => {
                 window.recaptchaVerifier?.clear();
                 toast.error(t('toastError.otpFail'))

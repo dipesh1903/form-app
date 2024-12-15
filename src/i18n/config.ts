@@ -50,7 +50,8 @@ i18n
                     "actionEditMsg": "Edit your details ?",
                     "actionEditBtnMsg": "edit",
                     "companyContactMsg": "Reach out to us",
-                    "message": "Our team will call you in sometime."
+                    "message": "Our team will call you in sometime.",
+                    "mapMsg": "Open in google map"
                 },
                 "toastError": {
                     "otpFail": "Please reload the page" 
@@ -95,7 +96,8 @@ i18n
                 "actionEditMsg": "अपना विवरण संपादित करें?",
                 "actionEditBtnMsg": "संपादन करना",
                 "companyContactMsg": "हम तक पहुंचें",
-                "message": "हमारी टीम आपको कुछ देर में कॉल करेगी."
+                "message": "हमारी टीम आपको कुछ देर में कॉल करेगी.",
+                "mapMsg": "गूगल मैप में खोलें"
             },
             "toastError": {
                 "otpFail": "कृपया पुनः लोड करें" 

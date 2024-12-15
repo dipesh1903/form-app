@@ -8,23 +8,24 @@ import { PrimaryButton } from "../components/ui/primary-button";
 import Spinner from "../assets/svg/spinner.svg";
 import { PassportOptions } from "../constant";
 import { UserInfoFirebase } from "../type";
-import { saveUserDetails } from "../api";
+import { getUserDetails, saveUserDetails } from "../api";
 import { useAuth } from "../store/auth/context";
 import { UserDetailsStore } from "../store/globalStore";
+import { useNavigate } from "react-router-dom";
+import Loader from "../components/ui/loader";
 
-type props = {
-    onSuccess: () => void
-}
 
-export default function UserDetails({onSuccess}: props) {
+export default function UserDetails() {
 
     const [isPassportDropdownOpen, setPassportDropdown] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [isFormValid, setFormValid] = useState<boolean>(false);
+    const [showLoader, setShowLoader] = useState(true);
     const inputRefs = useRef<HTMLInputElement[]>([]);
     const formRef = useRef<HTMLFormElement>(null);
     const auth = useAuth()
     const isFormEdit = useRef<boolean>(false);
+    const navigate = useNavigate();
 
     const { t } = useTranslation();
 
@@ -35,14 +36,35 @@ export default function UserDetails({onSuccess}: props) {
 
     useEffect(() => {
         const userDetails = UserDetailsStore.getUserDetails()
-        if (userDetails && Object.keys(userDetails).length) {
-            isFormEdit.current = true
-            inputRefs.current.forEach(ref => {
-                ref.value = userDetails[ref.name as keyof UserInfoFirebase] || ''
+        if (!userDetails) {
+            setShowLoader(true);
+            getUserDetails(auth.user.uid).then(res => {
+                if(res) {
+                    navigate('/success', {
+                        replace: true
+                    })
+                    UserDetailsStore.setUserDetails(res);
+                }
+            }).catch(error => {
+                navigate('/login', {
+                    replace: true
+                })
+                console.log('the error is ', error);
+            }).finally(() => setShowLoader(false))
+        } else if (userDetails && Object.keys(userDetails).length) {
+            setShowLoader(false);
+            setTimeout(() => {
+                isFormEdit.current = true
+                inputRefs.current.forEach(ref => {
+                    ref.value = userDetails[ref.name as keyof UserInfoFirebase] || ''
+                })
+                checkValidity();
             })
-            checkValidity();
+        } else {
+            setShowLoader(false)
         }
-    }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [inputRefs.current.length])
 
     function addUserDetails() {
         setLoading(true);
@@ -53,7 +75,9 @@ export default function UserDetails({onSuccess}: props) {
         })
         saveUserDetails(inputValues, auth.user.uid, isFormEdit.current).then(() => {
             setLoading(false);
-            onSuccess();
+            navigate('/success', {
+                replace: true
+            })
         }).catch ((error) => {
             setLoading(false)
             console.log('error is', error)
@@ -61,70 +85,74 @@ export default function UserDetails({onSuccess}: props) {
     }
 
     return (
-        <div className="max-w-sm sm:m-auto text-center">
-            <h1 className="text-[28px] py-4 leading-none max-w-sm m-auto font-sansAlbert font-semibold">
-                {t('userDetails.heading')}
-            </h1>
-            <div className="flex flex-col justify-between">
-                <form ref={formRef}>
-                    <div className="my-2">
-                        <Label>{t('userDetails.passport')}<span className="text-red-500 pl-1 align-sub">*</span></Label>
-                        <div className="flex-1">
-                            <Dropdown open={isPassportDropdownOpen} onOpenChange={() => setPassportDropdown(false)}>
-                                <DropdownTrigger asChild>
-                                <Input
-                                    name="hasPassport"
-                                    inputClass="p-2"
-                                    ref={(el: HTMLInputElement) => inputRefs.current[0] = el}
-                                    type="text"
-                                    required
-                                    readOnly
-                                    className={cn("w-full h-fit p-[2px] rounded-md")}
-                                    onClick={() => setPassportDropdown(true)} />
-                                </DropdownTrigger>
-                                <DropdownContent sideOffset={6} className="p-2 hover:cursor-pointer max-h-72 max-w-72 rounded-lg shadow-lg overflow-scroll" >
-                                    {
-                                        Object.values(PassportOptions).map((state, index) => (
-                                            <DropdownMenuItem key={index}
-                                                className="px-3 outline-none py-1 mb-[2px] rounded-md"
-                                                onClick={() => {inputRefs.current[0].value = state; checkValidity()}}>
-                                                {state}
-                                            </DropdownMenuItem>
-                                        ))
-                                    }
-                                </DropdownContent>
-                            </Dropdown>
+        <>
+            { showLoader ? <Loader /> :
+            <div className="max-w-sm sm:m-auto">
+                <h1 className="text-[28px] py-4 leading-none max-w-sm m-auto font-sansAlbert font-semibold">
+                    {t('userDetails.heading')}
+                </h1>
+                <div className="flex flex-col justify-between">
+                    <form ref={formRef}>
+                        <div className="my-2">
+                            <Label>{t('userDetails.passport')}<span className="text-red-500 pl-1 align-sub">*</span></Label>
+                            <div className="flex-1">
+                                <Dropdown open={isPassportDropdownOpen} onOpenChange={() => setPassportDropdown(false)}>
+                                    <DropdownTrigger asChild>
+                                    <Input
+                                        name="hasPassport"
+                                        inputClass="p-2"
+                                        ref={(el: HTMLInputElement) => inputRefs.current[0] = el}
+                                        type="text"
+                                        required
+                                        readOnly
+                                        className={cn("w-full h-fit p-[2px] rounded-md")}
+                                        onClick={() => setPassportDropdown(true)} />
+                                    </DropdownTrigger>
+                                    <DropdownContent sideOffset={6} className="p-2 hover:cursor-pointer max-h-72 max-w-72 rounded-lg shadow-lg overflow-scroll" >
+                                        {
+                                            Object.values(PassportOptions).map((state, index) => (
+                                                <DropdownMenuItem key={index}
+                                                    className="px-3 outline-none py-1 mb-[2px] rounded-md"
+                                                    onClick={() => {inputRefs.current[0].value = state; checkValidity()}}>
+                                                    {state}
+                                                </DropdownMenuItem>
+                                            ))
+                                        }
+                                    </DropdownContent>
+                                </Dropdown>
+                            </div>
                         </div>
-                    </div>
-                    <div className="my-2">
-                        <Label>{t('userDetails.name')}<span className="text-red-500 pl-1 align-sub">*</span></Label>
-                        <Input
-                            name="name"
-                            ref={(el: HTMLInputElement) => inputRefs.current[1] = el}
-                            inputClass="p-2"
-                            type="text"
-                            onChange={() => checkValidity()}
-                            required
-                            />
-                    </div>
-                    <div className="my-2">
-                        <Label>{t('userDetails.address')}</Label>
-                        <Input 
-                            name="address"
-                            ref={(el: HTMLInputElement) => inputRefs.current[2] = el}
-                            inputClass="p-2"
-                            type="text"/>
-                    </div>
-                </form>
-                <PrimaryButton className={cn("mt-2", 
-                    {"pointer-events-none from-gradientLeftOpaque to-gradientRightOpaque": !isFormValid || isLoading})}
-                    onClick={addUserDetails}>
-                    <div className="flex justify-center">
-                        {isLoading && <img src={Spinner} className="pr-2"/>}
-                        <span>{t('userDetails.btnMessage')}</span>
-                    </div>
-                </PrimaryButton>
+                        <div className="my-2">
+                            <Label>{t('userDetails.name')}<span className="text-red-500 pl-1 align-sub">*</span></Label>
+                            <Input
+                                name="name"
+                                ref={(el: HTMLInputElement) => inputRefs.current[1] = el}
+                                inputClass="p-2"
+                                type="text"
+                                onChange={() => checkValidity()}
+                                required
+                                />
+                        </div>
+                        <div className="my-2">
+                            <Label>{t('userDetails.address')}</Label>
+                            <Input 
+                                name="address"
+                                ref={(el: HTMLInputElement) => inputRefs.current[2] = el}
+                                inputClass="p-2"
+                                type="text"/>
+                        </div>
+                    </form>
+                    <PrimaryButton className={cn("mt-2", 
+                        {"pointer-events-none from-gradientLeftOpaque to-gradientRightOpaque": !isFormValid || isLoading})}
+                        onClick={addUserDetails}>
+                        <div className="flex justify-center">
+                            {isLoading && <img src={Spinner} className="pr-2"/>}
+                            <span>{t('userDetails.btnMessage')}</span>
+                        </div>
+                    </PrimaryButton>
+                </div>
             </div>
-        </div>
+            }   
+        </>
     )
 }

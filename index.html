@@ -4,10 +4,47 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>Parishrami</title>
+    <style>
+      .loader-content {
+        padding: 16px;
+        background-image: linear-gradient(to top right, #5DE0E6, #004AAD);
+        border-radius: 100%;
+        animation: spin 1s linear infinite;
+      }
+
+      .content-1 {
+        border-radius: 100%;
+        background-color: white;
+      }
+
+      .content-1 div:nth-child(1) {
+        border-radius: 100%;
+        height: 96px;
+        width: 96px;
+      }
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+} 
+    </style>
   </head>
   <body>
     <div id="root"></div>
+     <div class="app-init-loader" style="display: flex; height: 100%; width: 100%; align-items: center; justify-content: center;">
+        <div class="loader-container" >
+          <div class="loader-content">
+              <div class="content-1" >
+              <div></div>
+              </div>
+          </div>
+        </div>
+     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

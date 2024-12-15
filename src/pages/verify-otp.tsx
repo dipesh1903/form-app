@@ -5,26 +5,26 @@ import { SecondaryButton } from "../components/ui/secondary-button"
 import { ChangeEvent, createRef, useEffect, useRef, useState } from "react"
 import { cn } from "../utils"
 import Spinner from "../assets/svg/spinner.svg"
-import { Drawer, DrawerContent, DrawerOverlay } from "../components/ui/drawer"
-import otpVerificationSuccess from "../assets/gifs/login-success.gif";
-import { useConfig } from "../store/config"
+// import { Drawer, DrawerContent, DrawerOverlay } from "../components/ui/drawer"
+// import otpVerificationSuccess from "../assets/gifs/login-success.gif";
+// import { useConfig } from "../store/config"
 import { useAuthDispatch } from "../store/auth/context"
 import { AuthActionFactory } from "../store/auth/actionCreator"
+import { useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 
-type props = {
-    onSuccess: () => void
-}
 
-export default function VerifyOtp({onSuccess} : props) {
+export default function VerifyOtp() {
 
     const { t } = useTranslation()
     const inputRefs = useRef<HTMLInputElement[]>([]);
     const [otpValue, setOtpValue] = useState<string[]>(Array(6).fill(''))
     const [isLoading , setLoading] = useState<boolean>(false);
-    const [isDrawerOpen , setDrawerOpen] = useState<boolean>(false);
+    // const [isDrawerOpen , setDrawerOpen] = useState<boolean>(false);
     const [isError, setError] = useState<boolean>(false);
-    const drawerPos = useConfig();
+    // const drawerPos = useConfig();
     const dispatchAuth = useAuthDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         inputRefs.current[0].focus();
@@ -60,10 +60,13 @@ export default function VerifyOtp({onSuccess} : props) {
         const code = otpValue.join("");
         window?.confirmationResult?.confirm(code).then((result) => {
             dispatchAuth(AuthActionFactory.signIn(result.user, true));
-            setDrawerOpen(true);
+            // setDrawerOpen(true);
+            toast.success(t('otpPage.successMsg'));
             setTimeout(() => {
-                setDrawerOpen(false)
-                onSuccess();
+                // setDrawerOpen(false)
+                navigate('/details', {
+                    replace: true
+                })
             }, 2000)
           }).catch(() => {
             setError(true)
@@ -108,7 +111,7 @@ export default function VerifyOtp({onSuccess} : props) {
                 </SecondaryButton>
             </div>
         </div>
-        <Drawer open={isDrawerOpen} onOpenChange={() => setDrawerOpen(false)}
+        {/* <Drawer open={isDrawerOpen} onOpenChange={() => setDrawerOpen(false)}
             onAnimationEnd={() => {
             setTimeout(() => {
                 document.body.style.pointerEvents = "auto";
@@ -121,7 +124,7 @@ export default function VerifyOtp({onSuccess} : props) {
                     </div>
                 </DrawerContent>
             </DrawerOverlay>
-        </Drawer>
+        </Drawer> */}
     </>
     )
 }

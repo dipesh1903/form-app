@@ -3,34 +3,42 @@ import successLogin from '../assets/gifs/form-success.gif';
 import { SecondaryButton } from "../components/ui/secondary-button";
 import CallIcon from "../assets/svg/call-icon.svg";
 import LocationIcon from "../assets/svg/location-icon.svg";
-import { Pages } from "../constant";
 import { useAuthDispatch } from "../store/auth/context";
 import { AuthActionFactory } from "../store/auth/actionCreator";
+import { useNavigate } from "react-router-dom";
+import LocationPng from "../assets/location.png";
+import { getAuth } from "firebase/auth";
+import { UserDetailsStore } from "../store/globalStore";
 
 type props = {
     isExistingUser?: boolean
-    goToPage: (page: Pages) => void
 }
 
-export default function ExisitngUser({isExistingUser, goToPage}: props) {
+export default function ExisitngUser({isExistingUser}: props) {
 
     const { t } = useTranslation();
     const dispatch = useAuthDispatch();
+    const navigate = useNavigate();
+    const auth = getAuth();
     const heading = isExistingUser ? "existingUser.headingExistingUser" : "existingUser.headingSuccess"
 
     return (
         <div className="text-center max-w-sm flex sm:m-auto flex-col items-center sm:items-start">
             <p className="my-4 font-semibold font-sansAlbert text-[24px] opacity-75">{t(heading)}</p>
             <img className="w-[160px] m-auto" src={successLogin} />
-            <p className="font-semibold font-sansAlbert text-[20px] mb-4 opacity-75">{t('existingUser.message')}</p>
+            <p className="font-semibold font-sansAlbert text-[18px] mb-4 opacity-50">{t('existingUser.message')}</p>
             <>
                 <div className="shadow-md p-4 w-full">
                     <div className="flex items-center gap-2 justify-between self-start w-full">
-                        <p className="font-semibold text-start text-onSurfaceSecondary">{t('existingUser.actionRegisterMsg')}</p>
+                        <p className="font-semibold text-start leading-[1] text-onSurfaceSecondary">{t('existingUser.actionRegisterMsg')}</p>
                         <SecondaryButton className="w-fit"
-                            onClick={() => {
+                            onClick={async () => {
+                                await auth.signOut()
                                 dispatch(AuthActionFactory.signOut())
-                                goToPage(Pages.LOGIN_PAGE);
+                                UserDetailsStore.clearUserDetails();
+                                navigate('/login', {
+                                    replace: true
+                                })
                             }}
                             containerClass="py-[1px] px-4 text-[16px]">
                             {t('existingUser.actionRegisterBtnMsg')}
@@ -42,10 +50,12 @@ export default function ExisitngUser({isExistingUser, goToPage}: props) {
                         <div className="w-full h-[0.5px] opacity-50 bg-gradient-to-r from-gradientLeftOpaque to-gradientRightOpaque"></div>
                     </div>
                     <div className="flex items-center gap-2 justify-between self-start w-full">
-                        <p className="font-semibold text-start text-onSurfaceSecondary">{t('existingUser.actionEditMsg')}</p>
+                        <p className="font-semibold leading-[1] text-start text-onSurfaceSecondary">{t('existingUser.actionEditMsg')}</p>
                         <SecondaryButton className="w-fit"
                             containerClass="py-[1px] px-4 text-[16px]"
-                            onClick={() => goToPage(Pages.USER_DETAILS_PAGE)}
+                            onClick={() => navigate('/details', {
+                                replace: true
+                            })}
                             >
                             {t('existingUser.actionEditBtnMsg')}
                         </SecondaryButton>
@@ -69,10 +79,16 @@ export default function ExisitngUser({isExistingUser, goToPage}: props) {
                                 <span className="pl-2 text-left">{t('existingUser.address')}</span>
                             </div>
                         </div>
-                        <div className="flex-1 ml-1 bg-locationBackground"></div>
+                        <a className="flex-1 ml-1" href={'https://maps.google.com?q=26.7192541,88.348871'} target="_blank">
+                            <div className="bg-locationBackground relative">
+                                <img className="contrast-75" src={LocationPng} />
+                                <span className="absolute top-[50%] left-0 translate-y-[-50%] opacity-75 w-full">{t('existingUser.mapMsg')}</span>
+                            </div>
+                        </a>
                     </div>
                 </div>
-                <div className="h-[2px] w-full bg-gradient-to-r from-gradientLeftOpaque to-gradientRightOpaque"></div>
+                    <div className="h-[2px] w-full bg-gradient-to-r from-gradientLeftOpaque to-gradientRightOpaque">
+                    </div>
             </div>
         </div>
     )

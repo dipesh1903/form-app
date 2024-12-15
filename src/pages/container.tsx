@@ -1,48 +1,30 @@
-import { ReactNode, useEffect, useRef, useState } from "react"
-import Login from "./login";
-import VerifyOtp from "./verify-otp";
-import UserDetails from "./user-details";
-import ExisitngUser from "./existing-user";
+import { useEffect, useRef } from "react"
+
 import CompanyLogo from "../components/company-logo/indesx";
 import { useConfigDispatch } from "../store/config";
-import Loader from "../components/ui/loader";
-import { Languages, Pages } from "../constant";
-import { UserInfoFirebase } from "../type";
+import { Languages } from "../constant";
 import { Dropdown, DropdownContent, DropdownMenuItem, DropdownTrigger } from "../components/ui/dropdown-menu";
 import { useTranslation } from "react-i18next";
 import { SecondaryButton } from "../components/ui/secondary-button";
+import { Outlet } from "react-router-dom";
+import Loader from "../components/ui/loader";
 
 type props = {
-    currPage?: Pages,
-    isExistingUser?: boolean
-    userDetails?: UserInfoFirebase
+    showLoader?: boolean
 }
 
-export default function Container({currPage, isExistingUser}: props) {
-
-    const [page, setPage] = useState<Pages>(() => Pages.LOADER)
+export default function Container({showLoader}: props) {
     const dispatch = useConfigDispatch();
     const { i18n } = useTranslation();
     const mainRef = useRef<HTMLDivElement>(null);
 
-
-    let component: ReactNode = <Login onSuccess={() => setPage(Pages.OTP_PAGE)}/>
-    if (page === Pages.LOGIN_PAGE) component = <Login onSuccess={() => setPage(Pages.OTP_PAGE)}/>
-    else if (page === Pages.OTP_PAGE) component = <VerifyOtp onSuccess={() => setPage(Pages.USER_DETAILS_PAGE)}/>
-    else if (page === Pages.USER_DETAILS_PAGE) component = <UserDetails onSuccess={() => setPage(Pages.EXISITNG_USER_PAGE)}/>
-    else if (page === Pages.EXISITNG_USER_PAGE) component = <ExisitngUser isExistingUser={isExistingUser} goToPage={(page: Pages) => setPage(page)}/>
-    else if (page === Pages.LOADER) component = <Loader />
-
     useEffect(() => {
-        if (currPage) {
-            setPage(currPage);
-        }
         if (mainRef && mainRef.current) {
             const pos = mainRef.current.getBoundingClientRect();
             dispatch(pos);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currPage])
+    }, [])
 
     function updateLanguage(lang: string) {
         i18n.changeLanguage(lang)
@@ -74,9 +56,9 @@ export default function Container({currPage, isExistingUser}: props) {
                             ))
                         }
                     </DropdownContent>
-                            </Dropdown>
+                </Dropdown>
             </div>
-            {component}
+            {showLoader ? <Loader /> : <Outlet /> }
         </div>
     )
 }
